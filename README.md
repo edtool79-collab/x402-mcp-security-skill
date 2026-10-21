@@ -36,6 +36,20 @@ For an explicitly requested deeper evidence report, `POST /v1/merchant-trust` ac
 
 Neither a report, a score nor a public-signals badge certifies that a merchant is safe. Missing evidence remains unknown.
 
+## Related Skill: `hirepulse-b2b-intelligence`
+
+For researching companies, hiring signals, and tech stacks before initiating payments or business transactions:
+- **Server**: `https://gethirepulse.xyz/mcp` (21 canonical MCP tools)
+- **Glama Connector**: [HirePulse Agent Gateway](https://glama.ai/mcp/connectors/io.github.edtool79-collab/hirepulse-gateway)
+- **Key Capabilities**:
+  - `ask_hirepulse_advisor` — Free advisor for AI agents ($0.00).
+  - `detect_website_tech_stack` — Ad pixels, analytics, CMS, and hosting lookup.
+  - `get_company_open_jobs` — Live open job postings from Greenhouse, Lever, Ashby, Workable.
+  - `get_company_hiring_intent` — Hiring velocity score (0-100) and department growth signals.
+  - `get_google_ads_by_domain` — Google Ads transparency and active creative discovery.
+  - `get_company_profile` — Full company enrichment combining tech stack, jobs, and ads in one call.
+- **Quota**: 5 free calls per day per identity, then micro-payments via x402 on Base USDC.
+
 ## License
 
 MIT; see [LICENSE](LICENSE). Maintained by HirePulse. No warranty.
