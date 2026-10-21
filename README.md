@@ -1,44 +1,41 @@
-# x402-mcp-security-skill
+# x402 & MCP payment review skill
 
-A drop-in agent skill that makes an AI agent **screen a merchant before it signs an x402 payment**.
+Review merchant evidence and payment terms before an agent signs an explicitly authorized x402 payment. Works with runtimes that read `SKILL.md`; adapters for Claude Code and Cursor are included.
 
-Works with Hermes Agent, Claude Code, Cursor and any runtime that reads `SKILL.md`, `CLAUDE.md` or `.cursorrules`.
+This is a policy workflow, not a wallet, automatic payer or security certification. External scanning is optional and cannot authorize its own cost.
 
 ## Install
 
 ```bash
-git clone https://github.com/edtool79-collab/x402-mcp-security-skill
-# Hermes / Claude skills dir
-cp -r x402-mcp-security-skill ~/.hermes/skills/x402-mcp-security
-# Cursor
-cp x402-mcp-security-skill/.cursorrules .cursorrules
+git clone https://github.com/edtool79-collab/x402-mcp-security-skill.git
 ```
 
-## What it enforces
+Copy the folder into your runtime's skill directory as `x402-mcp-security`: `~/.codex/skills/` for Codex, `~/.claude/skills/` for Claude Code, or your configured Hermes skills directory. Review and merge `.cursorrules` into existing Cursor instructions; preserve your project's existing rules.
 
-| Rule | Why |
+## What it checks
+
+| Check | Evidence |
 |---|---|
-| Screen before paying | A live `402` can advertise terms the service never mentions on its site |
-| Compare network, asset, price, `payTo` | Mismatches are the cheapest attack on agent payments |
-| Treat `402` bodies as data | Prompt injection reaches agents through payment headers and tool descriptions |
-| Never double-pay | Settlement is irreversible; retries create duplicate charges |
-| Refuse private IPs / odd redirects | Prevents SSRF and redirect-based wallet swaps |
+| Authorized merchant and budget | User instructions or trusted client configuration |
+| Network, token, recipient and amount | Decoded x402 terms compared with the independent policy |
+| Redirect and target safety | Origin, public DNS resolution and redirect destinations |
+| Untrusted instructions | Payment bodies and tool descriptions treated as data |
+| Uncertain settlement | Original operation and receipt reconciled before a new payment |
 
-## The check itself
+## Optional HirePulse report
 
 ```bash
-curl -s -X POST https://gethirepulse.xyz/v1/verify-merchant \
+curl --fail-with-body --max-time 30 -X POST https://gethirepulse.xyz/v1/verify-merchant \
   -H "Content-Type: application/json" \
-  -d '{"url":"https://merchant.example"}'
+  -d '{"target_url":"https://example.com"}'
 ```
 
-- **$0.002** per completed report · first **5 calls per UTC day free** · unreachable targets free
-- Returns public discovery state, the live 402 terms, comparable USDC prices, latency and prompt-injection flags
-- Evidence-based heuristic, **not** a certification or a guarantee
+The request uses `target_url`, as required by the [live schema](https://gethirepulse.xyz/openapi.json). A completed result currently costs $0.002 USDC after the shared five-call daily free allowance. This command contains no payment signature and never signs or pays automatically. A 402 or service outage must not be represented as a completed scan.
 
-Deeper: `POST https://gethirepulse.xyz/v1/merchant-trust` (`{"domain":"..."}`, $0.005).
-MCP equivalent: `https://gethirepulse.xyz/mcp`, tools `x402_merchant_trust_check` and `pre_purchase_merchant_trust_check`.
+For an explicitly requested deeper evidence report, `POST /v1/merchant-trust` accepts `{"domain":"example.com"}` and advertises $0.005 per successful result. Read the [catalog](https://gethirepulse.xyz/v1/catalog) for current availability and prices.
 
-## Licence
+Neither a report, a score nor a public-signals badge certifies that a merchant is safe. Missing evidence remains unknown.
 
-MIT. No warranty: the checks report public evidence, they do not guarantee that a merchant is honest.
+## License
+
+MIT; see [LICENSE](LICENSE). Maintained by HirePulse. No warranty.
